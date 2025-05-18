@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power Calculator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f0f2f5;
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+        }
+        
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+            background-color: #34495e;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            color: white;
+            flex: 1;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background-color: #2c3e50;
+            font-weight: bold;
+        }
+        
+        .tab:hover:not(.active) {
+            background-color: #3d566e;
+        }
+        
+        .tab-content {
+            display: none;
+            background-color: white;
+            padding: 20px;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .converter-box {
+            background-color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #d5f5e3;
+            border-radius: 4px;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            border: 1px solid #bdc3c7;
+            padding: 10px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #2c3e50;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        
+        .maintenance-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .maintenance-records {
+            margin-top: 30px;
+        }
+        
+        .record-item {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .record-item h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .record-item p {
+            margin-bottom: 5px;
+        }
+        
+        .delete-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .appliance-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .appliance-item label {
+            flex: 1;
+            margin-right: 10px;
+        }
+        
+        .appliance-item input, .appliance-item select {
+            width: 100px;
+            margin-right: 10px;
+        }
+        
+        .total-load {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #d6eaf8;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .maintenance-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .tab-container {
+                flex-direction: column;
+            }
+            
+            .appliance-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .appliance-item input, .appliance-item select {
+                width: 100%;
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Power Calculator</h1>
+        </header>
+        
+        <div class="tab-container">
+            <div class="tab active" onclick="openTab('converter')">Power Converters</div>
+            <div class="tab" onclick="openTab('cable')">Cable Chart</div>
+            <div class="tab" onclick="openTab('maintenance')">Generator Maintenance</div>
+            <div class="tab" onclick="openTab('load')">Load Calculator</div>
+        </div>
+        
+        <!-- Power Converters Tab -->
+        <div id="converter" class="tab-content active">
+            <div class="converter-box">
+                <h2>KVA to KW Converter</h2>
+                <div class="input-group">
+                    <label for="kva-kw-value">Enter KVA:</label>
+                    <input type="number" id="kva-kw-value" placeholder="Enter KVA value">
+                </div>
+                <div class="input-group">
+                    <label for="kva-kw-phase">Select Phase:</label>
+                    <select id="kva-kw-phase">
+                        <option value="1">1 Phase</option>
+                        <option value="3">3 Phase</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="kva-kw-pf">Power Factor (PF):</label>
+                    <input type="number" id="kva-kw-pf" value="0.8" step="0.01" min="0.1" max="1">
+                </div>
+                <button onclick="convertKvaToKw()">Convert to KW</button>
+                <div id="kva-kw-result" class="result"></div>
+            </div>
+            
+            <div class="converter-box">
+                <h2>KW to KVA Converter</h2>
+                <div class="input-group">
+                    <label for="kw-kva-value">Enter KW:</label>
+                    <input type="number" id="kw-kva-value" placeholder="Enter KW value">
+                </div>
+                <div class="input-group">
+                    <label for="kw-kva-phase">Select Phase:</label>
+                    <select id="kw-kva-phase">
+                        <option value="1">1 Phase</option>
+                        <option value="3">3 Phase</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="kw-kva-pf">Power Factor (PF):</label>
+                    <input type="number" id="kw-kva-pf" value="0.8" step="0.01" min="0.1" max="1">
+                </div>
+                <button onclick="convertKwToKva()">Convert to KVA</button>
+                <div id="kw-kva-result" class="result"></div>
+            </div>
+            
+            <div class="converter-box">
+                <h2>KVA to HP Converter</h2>
+                <div class="input-group">
+                    <label for="kva-hp-value">Enter KVA:</label>
+                    <input type="number" id="kva-hp-value" placeholder="Enter KVA value">
+                </div>
+                <div class="input-group">
+                    <label for="kva-hp-phase">Select Phase:</label>
+                    <select id="kva-hp-phase">
+                        <option value="1">1 Phase</option>
+                        <option value="3">3 Phase</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="kva-hp-pf">Power Factor (PF):</label>
+                    <input type="number" id="kva-hp-pf" value="0.8" step="0.01" min="0.1" max="1">
+                </div>
+                <button onclick="convertKvaToHp()">Convert to HP</button>
+                <div id="kva-hp-result" class="result"></div>
+            </div>
+            
+            <div class="converter-box">
+                <h2>HP to KVA Converter</h2>
+                <div class="input-group">
+                    <label for="hp-kva-value">Enter HP:</label>
+                    <input type="number" id="hp-kva-value" placeholder="Enter HP value">
+                </div>
+                <div class="input-group">
+                    <label for="hp-kva-phase">Select Phase:</label>
+                    <select id="hp-kva-phase">
+                        <option value="1">1 Phase</option>
+                        <option value="3">3 Phase</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="hp-kva-pf">Power Factor (PF):</label>
+                    <input type="number" id="hp-kva-pf" value="0.8" step="0.01" min="0.1" max="1">
+                </div>
+                <button onclick="convertHpToKva()">Convert to KVA</button>
+                <div id="hp-kva-result" class="result"></div>
+            </div>
+            
+            <div class="converter-box">
+                <h2>Amps to KVA Converter</h2>
+                <div class="input-group">
+                    <label for="amp-kva-value">Enter Amps:</label>
+                    <input type="number" id="amp-kva-value" placeholder="Enter Amps value">
+                </div>
+                <div class="input-group">
+                    <label for="amp-kva-phase">Select Phase:</label>
+                    <select id="amp-kva-phase">
+                        <option value="1">1 Phase</option>
+                        <option value="3">3 Phase</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="amp-kva-voltage">Voltage (V):</label>
+                    <input type="number" id="amp-kva-voltage" value="220" step="1">
+                </div>
+                <button onclick="convertAmpToKva()">Convert to KVA</button>
+                <div id="amp-kva-result" class="result"></div>
+            </div>
+            
+            <div class="converter-box">
+                <h2>KVA to Amps Converter</h2>
+                <div class="input-group">
+                    <label for="kva-amp-value">Enter KVA:</label>
+                    <input type="number" id="kva-amp-value" placeholder="Enter KVA value">
+                </div>
+                <div class="input-group">
+                    <label for="kva-amp-phase">Select Phase:</label>
+                    <select id="kva-amp-phase">
+                        <option value="1">1 Phase</option>
+                        <option value="3">3 Phase</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="kva-amp-voltage">Voltage (V):</label>
+                    <input type="number" id="kva-amp-voltage" value="220" step="1">
+                </div>
+                <button onclick="convertKvaToAmp()">Convert to Amps</button>
+                <div id="kva-amp-result" class="result"></div>
+            </div>
+            
+            <div class="converter-box">
+                <h2>Watts to Amps Converter</h2>
+                <div class="input-group">
+                    <label for="watt-amp-value">Enter Watts:</label>
+                    <input type="number" id="watt-amp-value" placeholder="Enter Watts value">
+                </div>
+                <div class="input-group">
+                    <label for="watt-amp-phase">Select Phase:</label>
+                    <select id="watt-amp-phase">
+                        <option value="1">1 Phase</option>
+                        <option value="3">3 Phase</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="watt-amp-voltage">Voltage (V):</label>
+                    <input type="number" id="watt-amp-voltage" value="220" step="1">
+                </div>
+                <div class="input-group">
+                    <label for="watt-amp-pf">Power Factor (PF):</label>
+                    <input type="number" id="watt-amp-pf" value="0.8" step="0.01" min="0.1" max="1">
+                </div>
+                <button onclick="convertWattToAmp()">Convert to Amps</button>
+                <div id="watt-amp-result" class="result"></div>
+            </div>
+            
+            <div class="converter-box">
+                <h2>Amps to Watts Converter</h2>
+                <div class="input-group">
+                    <label for="amp-watt-value">Enter Amps:</label>
+                    <input type="number" id="amp-watt-value" placeholder="Enter Amps value">
+                </div>
+                <div class="input-group">
+                    <label for="amp-watt-phase">Select Phase:</label>
+                    <select id="amp-watt-phase">
+                        <option value="1">1 Phase</option>
+                        <option value="3">3 Phase</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="amp-watt-voltage">Voltage (V):</label>
+                    <input type="number" id="amp-watt-voltage" value="220" step="1">
+                </div>
+                <div class="input-group">
+                    <label for="amp-watt-pf">Power Factor (PF):</label>
+                    <input type="number" id="amp-watt-pf" value="0.8" step="0.01" min="0.1" max="1">
+                </div>
+                <button onclick="convertAmpToWatt()">Convert to Watts</button>
+                <div id="amp-watt-result" class="result"></div>
+            </div>
+        </div>
+        
+        <!-- Cable Chart Tab -->
+        <div id="cable" class="tab-content">
+            <h2>Cable Current Carrying Capacity</h2>
+            <div class="input-group">
+                <label for="cable-material">Select Cable Material:</label>
+                <select id="cable-material" onchange="updateCableChart()">
+                    <option value="copper">Copper</option>
+                    <option value="aluminum">Aluminum</option>
+                </select>
+            </div>
+            
+            <table id="cable-chart">
+                <thead>
+                    <tr>
+                        <th>Cable Size (mm²)</th>
+                        <th>Current Rating (Amps)</th>
+                        <th>Max Power (KW) at 220V</th>
+                        <th>Max Power (KW) at 380V</th>
+                    </tr>
+                </thead>
+                <tbody id="cable-chart-body">
+                    <!-- Filled by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Generator Maintenance Tab -->
+        <div id="maintenance" class="tab-content">
+            <h2>Generator Maintenance Record</h2>
+            <form id="maintenance-form" class="maintenance-form">
+                <div class="input-group">
+                    <label for="maintenance-type">Maintenance Type:</label>
+                    <select id="maintenance-type" required>
+                        <option value="">Select Type</option>
+                        <option value="oil">Oil Change</option>
+                        <option value="oil-filter">Oil Filter Change</option>
+                        <option value="air-filter">Air Filter Change</option>
+                        <option value="diesel-filter">Diesel Filter Change</option>
+                        <option value="other">Other Maintenance</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="maintenance-date">Date:</label>
+                    <input type="date" id="maintenance-date" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="running-hours">Running Hours:</label>
+                    <input type="number" id="running-hours" placeholder="Enter running hours" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="next-maintenance">Next Maintenance Date:</label>
+                    <input type="date" id="next-maintenance" required>
+                </div>
+                
+                <div class="input-group" style="grid-column: span 2;">
+                    <label for="maintenance-notes">Notes:</label>
+                    <textarea id="maintenance-notes" rows="3" style="width: 100%; padding: 10px;"></textarea>
+                </div>
+                
+                <button type="button" onclick="saveMaintenanceRecord()" style="grid-column: span 2;">Save Record</button>
+            </form>
+            
+            <div class="maintenance-records">
+                <h2>Maintenance History</h2>
+                <div id="records-list">
+                    <!-- Records will be displayed here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Load Calculator Tab -->
+        <div id="load" class="tab-content">
+            <h2>Household Appliances Load Calculator</h2>
+            
+            <div class="appliance-item">
+                <label>Air Conditioner (Tons):</label>
+                <select id="ac-ton">
+                    <option value="0">0</option>
+                    <option value="1">1 Ton</option>
+                    <option value="1.5">1.5 Ton</option>
+                    <option value="2">2 Ton</option>
+                    <option value="2.5">2.5 Ton</option>
+                    <option value="3">3 Ton</option>
+                    <option value="3.5">3.5 Ton</option>
+                </select>
+                <input type="number" id="ac-qty" min="0" value="0" placeholder="Qty">
+            </div>
+            
+            <div class="appliance-item">
+                <label>Bulbs (Watt):</label>
+                <select id="bulb-watt">
+                    <option value="10">10W</option>
+                    <option value="15">15W</option>
+                    <option value="20">20W</option>
+                    <option value="40">40W</option>
+                    <option value="60">60W</option>
+                    <option value="100">100W</option>
+                </select>
+                <input type="number" id="bulb-qty" min="0" value="0" placeholder="Qty">
+            </div>
+            
+            <div class="appliance-item">
+                <label>Fans (Watt):</label>
+                <select id="fan-watt">
+                    <option value="50">50W</option>
+                    <option value="75">75W</option>
+                    <option value="100">100W</option>
+                </select>
+                <input type="number" id="fan-qty" min="0" value="0" placeholder="Qty">
+            </div>
+            
+            <div class="appliance-item">
+                <label>Water Pump (HP):</label>
+                <select id="pump-hp">
+                    <option value="0">0</option>
+                    <option value="0.5">0.5 HP</option>
+                    <option value="1">1 HP</option>
+                    <option value="1.5">1.5 HP</option>
+                    <option value="2">2 HP</option>
+                </select>
+                <input type="number" id="pump-qty" min="0" value="0" placeholder="Qty">
+            </div>
+            
+            <div class="appliance-item">
+                <label>Refrigerator (Watt):</label>
+                <select id="fridge-watt">
+                    <option value="100">100W</option>
+                    <option value="150">150W</option>
+                    <option value="200">200W</option>
+                    <option value="300">300W</option>
+                </select>
+                <input type="number" id="fridge-qty" min="0" value="0" placeholder="Qty">
+            </div>
+            
+            <div class="appliance-item">
+                <label>TV (Watt):</label>
+                <select id="tv-watt">
+                    <option value="50">50W</option>
+                    <option value="100">100W</option>
+                    <option value="150">150W</option>
+                    <option value="200">200W</option>
+                </select>
+                <input type="number" id="tv-qty" min="0" value="0" placeholder="Qty">
+            </div>
+            
+            <div class="appliance-item">
+                <label>Washing Machine (Watt):</label>
+                <select id="washer-watt">
+                    <option value="300">300W</option>
+                    <option value="500">500W</option>
+                    <option value="700">700W</option>
+                    <option value="1000">1000W</option>
+                </select>
+                <input type="number" id="washer-qty" min="0" value="0" placeholder="Qty">
+            </div>
+            
+            <div class="appliance-item">
+                <label>Other Appliances (Watt):</label>
+                <input type="number" id="other-watt" min="0" value="0" placeholder="Wattage">
+                <input type="number" id="other-qty" min="0" value="0" placeholder="Qty">
+            </div>
+            
+            <div class="input-group">
+                <label for="voltage">Voltage (V):</label>
+                <input type="number" id="voltage" value="220" min="110" max="480">
+            </div>
+            
+            <div class="input-group">
+                <label for="power-factor">Power Factor:</label>
+                <input type="number" id="power-factor" value="0.8" step="0.01" min="0.1" max="1">
+            </div>
+            
+            <button onclick="calculateTotalLoad()">Calculate Total Load</button>
+            
+            <div id="total-load" class="total-load">
+                <p>Total Load: <span id="total-watts">0</span> Watts</p>
+                <p>Total Current: <span id="total-amps">0</span> Amps</p>
+                <p>Total KVA: <span id="total-kva">0</span> KVA</p>
+                <p>Total KW: <span id="total-kw">0</span> KW</p>
+            </div>
+            
+            <h2>Standard Appliance Ratings</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Appliance</th>
+                        <th>Typical Wattage</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Air Conditioner (1 Ton)</td>
+                        <td>1200W</td>
+                        <td>Varies by efficiency</td>
+                    </tr>
+                    <tr>
+                        <td>LED Bulb</td>
+                        <td>10-20W</td>
+                        <td>Replaces 40-100W incandescent</td>
+                    </tr>
+                    <tr>
+                        <td>Ceiling Fan</td>
+                        <td>50-100W</td>
+                        <td>Depends on speed</td>
+                    </tr>
+                    <tr>
+                        <td>Water Pump (1 HP)</td>
+                        <td>750W</td>
+                        <td>1 HP = 746W</td>
+                    </tr>
+                    <tr>
+                        <td>Refrigerator</td>
+                        <td>100-300W</td>
+                        <td>Depends on size and efficiency</td>
+                    </tr>
+                    <tr>
+                        <td>LED TV</td>
+                        <td>50-200W</td>
+                        <td>Size dependent</td>
+                    </tr>
+                    <tr>
+                        <td>Washing Machine</td>
+                        <td>300-1000W</td>
+                        <td>Higher during heating</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Tab navigation
+        function openTab(tabName) {
+            const tabs = document.getElementsByClassName('tab');
+            const tabContents = document.getElementsByClassName('tab-content');
+            
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+                tabContents[i].classList.remove('active');
+            }
+            
+            document.getElementById(tabName).classList.add('active');
+            event.currentTarget.classList.add('active');
+            
+            // Initialize cable chart when tab is opened
+            if (tabName === 'cable') {
+                updateCableChart();
+            }
+            
+            // Load maintenance records when tab is opened
+            if (tabName === 'maintenance') {
+                loadMaintenanceRecords();
+            }
+        }
+        
+        // Set current date as default for maintenance
+        document.getElementById('maintenance-date').valueAsDate = new Date();
+        
+        // Calculate next maintenance date (default 6 months)
+        const nextDate = new Date();
+        nextDate.setMonth(nextDate.getMonth() + 6);
+        document.getElementById('next-maintenance').valueAsDate = nextDate;
+        
+        // Power Conversion Functions
+        function convertKvaToKw() {
+            const kva = parseFloat(document.getElementById('kva-kw-value').value);
+            const pf = parseFloat(document.getElementById('kva-kw-pf').value);
+            
+            if (isNaN(kva) || isNaN(pf)) {
+                alert('Please enter valid values');
+                return;
+            }
+            
+            const kw = kva * pf;
+            document.getElementById('kva-kw-result').innerHTML = `${kva} KVA = ${kw.toFixed(2)} KW (PF: ${pf})`;
+            document.getElementById('kva-kw-result').style.display = 'block';
+        }
+        
+        function convertKwToKva() {
+            const kw = parseFloat(document.getElementById('kw-kva-value').value);
+            const pf = parseFloat(document.getElementById('kw-kva-pf').value);
+            
+            if (isNaN(kw) || isNaN(pf) || pf === 0) {
+                alert('Please enter valid values');
+                return;
+            }
+            
+            const kva = kw / pf;
+            document.getElementById('kw-kva-result').innerHTML = `${kw} KW = ${kva.toFixed(2)} KVA (PF: ${pf})`;
+            document.getElementById('kw-kva-result').style.display = 'block';
+        }
+        
+        function convertKvaToHp() {
+            const kva = parseFloat(document.getElementById('kva-hp-value').value);
+            const pf = parseFloat(document.getElementById('kva-hp-pf').value);
+            
+            if (isNaN(kva) || isNaN(pf)) {
+                alert('Please enter valid values');
+                return;
+            }
+            
+            const kw = kva * pf;
+            const hp = kw / 0.746;
+            document.getElementById('kva-hp-result').innerHTML = `${kva} KVA = ${hp.toFixed(2)} HP (PF: ${pf})`;
+            document.getElementById('kva-hp-result').style.display = 'block';
+        }
+        
+        function convertHpToKva() {
+            const hp = parseFloat(document.getElementById('hp-kva-value').value);
+            const pf = parseFloat(document.getElementById('hp-kva-pf').value);
+            
+            if (isNaN(hp) || isNaN(pf) || pf === 0) {
+                alert('Please enter valid values');
+                return;
+            }
+            
+            const kw = hp * 0.746;
+            const kva = kw / pf;
+            document.getElementById('hp-kva-result').innerHTML = `${hp} HP = ${kva.toFixed(2)} KVA (PF: ${pf})`;
+            document.getElementById('hp-kva-result').style.display = 'block';
+        }
+        
+        function convertAmpToKva() {
+            const amps = parseFloat(document.getElementById('amp-kva-value').value);
+            const voltage = parseFloat(document.getElementById('amp-kva-voltage').value);
+            const phase = document.getElementById('amp-kva-phase').value;
+            
+            if (isNaN(amps) || isNaN(voltage) || voltage === 0) {
+                alert('Please enter valid values');
+                return;
+            }
+            
+            let kva;
+            if (phase === '1') {
+                kva = (amps * voltage) / 1000;
+            } else {
+                kva = (amps * voltage * Math.sqrt(3)) / 1000;
+            }
+            
+            document.getElementById('amp-kva-result').innerHTML = `${amps} Amps = ${kva.toFixed(2)} KVA (${phase}P, ${voltage}V)`;
+            document.getElementById('amp-kva-result').style.display = 'block';
+        }
+        
+        function convertKvaToAmp() {
+            const kva = parseFloat(document.getElementById('kva-amp-value').value);
+            const voltage = parseFloat(document.getElementById('kva-amp-voltage').value);
+            const phase = document.getElementById('kva-amp-phase').value;
+            
+            if (isNaN(kva) || isNaN(voltage) || voltage === 0) {
+                alert('Please enter valid values');
+                return;
+            }
+            
+            let amps;
+            if (phase === '1') {
+                amps = (kva * 1000) / voltage;
+            } else {
+                amps = (kva * 1000) / (voltage * Math.sqrt(3));
+            }
+            
+            document.getElementById('kva-amp-result').innerHTML = `${kva} KVA = ${amps.toFixed(2)} Amps (${phase}P, ${voltage}V)`;
+            document.getElementById('kva-amp-result').style.display = 'block';
+        }
+        
+        function convertWattToAmp() {
+            const watts = parseFloat(document.getElementById('watt-amp-value').value);
+            const voltage = parseFloat(document.getElementById('watt-amp-voltage').value);
+            const phase = document.getElementById('watt-amp-phase').value;
+            const pf = parseFloat(document.getElementById('watt-amp-pf').value);
+            
+            if (isNaN(watts) || isNaN(voltage) || isNaN(pf) || voltage === 0 || pf === 0) {
+                alert('Please enter valid values');
+                return;
+            }
+            
+            let amps;
+            if (phase === '1') {
+                amps = watts / (voltage * pf);
+            } else {
+                amps = watts / (voltage * Math.sqrt(3) * pf);
+            }
+            
+            document.getElementById('watt-amp-result').innerHTML = `${watts} Watts = ${amps.toFixed(2)} Amps (${phase}P, ${voltage}V, PF: ${pf})`;
+            document.getElementById('watt-amp-result').style.display = 'block';
+        }
+        
+        function convertAmpToWatt() {
+            const amps = parseFloat(document.getElementById('amp-watt-value').value);
+            const voltage = parseFloat(document.getElementById('amp-watt-voltage').value);
+            const phase = document.getElementById('amp-watt-phase').value;
+            const pf = parseFloat(document.getElementById('amp-watt-pf').value);
+            
+            if (isNaN(amps) || isNaN(voltage) || isNaN(pf) || voltage === 0) {
+                alert('Please enter valid values');
+                return;
+            }
+            
+            let watts;
+            if (phase === '1') {
+                watts = amps * voltage * pf;
+            } else {
+                watts = amps * voltage * Math.sqrt(3) * pf;
+            }
+            
+            document.getElementById('amp-watt-result').innerHTML = `${amps} Amps = ${watts.toFixed(2)} Watts (${phase}P, ${voltage}V, PF: ${pf})`;
+            document.getElementById('amp-watt-result').style.display = 'block';
+        }
+        
+        // Cable Chart Data
+        function updateCableChart() {
+            const material = document.getElementById('cable-material').value;
+            const tableBody = document.getElementById('cable-chart-body');
+            tableBody.innerHTML = '';
+            
+            // Current ratings for different cable sizes (copper vs aluminum)
+            const copperRatings = {
+                4: 25, 6: 32, 10: 43, 16: 58, 25: 76, 
+                35: 94, 50: 119, 70: 149, 95: 182, 
+                120: 213, 150: 247, 185: 284, 240: 340
+            };
+            
+            const aluminumRatings = {
+                4: 20, 6: 25, 10: 34, 16: 46, 25: 60, 
+                35: 75, 50: 95, 70: 119, 95: 145, 
+                120: 170, 150: 197, 185: 227, 240: 272
+            };
+            
+            const ratings = material === 'copper' ? copperRatings : aluminumRatings;
+            
+            for (const size in ratings) {
+                const current = ratings[size];
+                const power220 = (current * 220 / 1000).toFixed(1);
+                const power380 = (current * 380 * Math.sqrt(3) / 1000).toFixed(1);
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${size}</td>
+                    <td>${current}</td>
+                    <td>${power220}</td>
+                    <td>${power380}</td>
+                `;
+                tableBody.appendChild(row);
+            }
+        }
+        
+        // Maintenance Records Functions
+        function saveMaintenanceRecord() {
+            const type = document.getElementById('maintenance-type').value;
+            const date = document.getElementById('maintenance-date').value;
+            const hours = document.getElementById('running-hours').value;
+            const nextDate = document.getElementById('next-maintenance').value;
+            const notes = document.getElementById('maintenance-notes').value;
+            
+            if (!type || !date || !hours || !nextDate) {
+                alert('Please fill all required fields');
+                return;
+            }
+            
+            const record = {
+                id: Date.now(),
+                type,
+                date,
+                hours,
+                nextDate,
+                notes
+            };
+            
+            let records = JSON.parse(localStorage.getItem('maintenanceRecords') || '[]');
+            records.push(record);
+            localStorage.setItem('maintenanceRecords', JSON.stringify(records));
+            
+            loadMaintenanceRecords();
+            document.getElementById('maintenance-form').reset();
+            
+            // Reset dates to defaults
+            document.getElementById('maintenance-date').valueAsDate = new Date();
+            const nextDefaultDate = new Date();
+            nextDefaultDate.setMonth(nextDefaultDate.getMonth() + 6);
+            document.getElementById('next-maintenance').valueAsDate = nextDefaultDate;
+            
+            alert('Record saved successfully');
+        }
+        
+        function loadMaintenanceRecords() {
+            const records = JSON.parse(localStorage.getItem('maintenanceRecords') || '[]');
+            const recordsList = document.getElementById('records-list');
+            recordsList.innerHTML = '';
+            
+            if (records.length === 0) {
+                recordsList.innerHTML = '<p>No maintenance records found</p>';
+                return;
+            }
+            
+            // Sort records by date (newest first)
+            records.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            records.forEach(record => {
+                const typeNames = {
+                    'oil': 'Oil Change',
+                    'oil-filter': 'Oil Filter Change',
+                    'air-filter': 'Air Filter Change',
+                    'diesel-filter': 'Diesel Filter Change',
+                    'other': 'Other Maintenance'
+                };
+                
+                const recordElement = document.createElement('div');
+                recordElement.className = 'record-item';
+                recordElement.innerHTML = `
+                    <h3>${typeNames[record.type]} - ${record.date}</h3>
+                    <p><strong>Running Hours:</strong> ${record.hours}</p>
+                    <p><strong>Next Maintenance:</strong> ${record.nextDate}</p>
+                    ${record.notes ? `<p><strong>Notes:</strong> ${record.notes}</p>` : ''}
+                    <button class="delete-btn" onclick="deleteRecord(${record.id})">Delete</button>
+                `;
+                recordsList.appendChild(recordElement);
+            });
+        }
+        
+        function deleteRecord(id) {
+            if (!confirm('Are you sure you want to delete this record?')) {
+                return;
+            }
+            
+            let records = JSON.parse(localStorage.getItem('maintenanceRecords') || '[]');
+            records = records.filter(record => record.id !== id);
+            localStorage.setItem('maintenanceRecords', JSON.stringify(records));
+            
+            loadMaintenanceRecords();
+        }
+        
+        // Load Calculator Functions
+        function calculateTotalLoad() {
+            // AC (1 ton ≈ 1200W)
+            const acTons = parseFloat(document.getElementById('ac-ton').value);
+            const acQty = parseInt(document.getElementById('ac-qty').value) || 0;
+            const acWatts = acTons * 1200 * acQty;
+            
+            // Bulbs
+            const bulbWatt = parseInt(document.getElementById('bulb-watt').value);
+            const bulbQty = parseInt(document.getElementById('bulb-qty').value) || 0;
+            const bulbWatts = bulbWatt * bulbQty;
+            
+            // Fans
+            const fanWatt = parseInt(document.getElementById('fan-watt').value);
+            const fanQty = parseInt(document.getElementById('fan-qty').value) || 0;
+            const fanWatts = fanWatt * fanQty;
+            
+            // Water Pump (1 HP = 746W)
+            const pumpHp = parseFloat(document.getElementById('pump-hp').value);
+            const pumpQty = parseInt(document.getElementById('pump-qty').value) || 0;
+            const pumpWatts = pumpHp * 746 * pumpQty;
+            
+            // Refrigerator
+            const fridgeWatt = parseInt(document.getElementById('fridge-watt').value);
+            const fridgeQty = parseInt(document.getElementById('fridge-qty').value) || 0;
+            const fridgeWatts = fridgeWatt * fridgeQty;
+            
+            // TV
+            const tvWatt = parseInt(document.getElementById('tv-watt').value);
+            const tvQty = parseInt(document.getElementById('tv-qty').value) || 0;
+            const tvWatts = tvWatt * tvQty;
+            
+            // Washing Machine
+            const washerWatt = parseInt(document.getElementById('washer-watt').value);
+            const washerQty = parseInt(document.getElementById('washer-qty').value) || 0;
+            const washerWatts = washerWatt * washerQty;
+            
+            // Other Appliances
+            const otherWatt = parseInt(document.getElementById('other-watt').value) || 0;
+            const otherQty = parseInt(document.getElementById('other-qty').value) || 0;
+            const otherWatts = otherWatt * otherQty;
+            
+            // Total Watts
+            const totalWatts = acWatts + bulbWatts + fanWatts + pumpWatts + fridgeWatts + tvWatts + washerWatts + otherWatts;
+            
+            // Voltage and Power Factor
+            const voltage = parseFloat(document.getElementById('voltage').value);
+            const pf = parseFloat(document.getElementById('power-factor').value);
+            
+            // Calculate other values
+            const totalAmps = totalWatts / (voltage * pf);
+            const totalKva = totalWatts / (1000 * pf);
+            const totalKw = totalWatts / 1000;
+            
+            // Display results
+            document.getElementById('total-watts').textContent = totalWatts.toFixed(2);
+            document.getElementById('total-amps').textContent = totalAmps.toFixed(2);
+            document.getElementById('total-kva').textContent = totalKva.toFixed(2);
+            document.getElementById('total-kw').textContent = totalKw.toFixed(2);
+        }
+        
+        // Initialize the app
+        window.onload = function() {
+            updateCableChart();
+        };
+    </script>
+</body>
+</html>
